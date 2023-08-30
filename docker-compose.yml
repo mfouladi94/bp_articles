@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: postgres_boilerplate
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin_boilerplate
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    ports:
+      - "5050:5050"
+    depends_on:
+      - postgres
+
+  redis:
+    container_name: redis_boilerplate
+    image: redis:latest
+
+  backend:
+    container_name: backend_boilerplate
+    build:
+      context: .
+      dockerfile: Docker/DockerfileBackend
+      args:
+        ENV_FILE: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
+
+
+volumes:
+  pg_data:
